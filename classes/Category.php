@@ -63,6 +63,15 @@ class Category
         return $result->rowCount() > 0;
     }
 
+    // Vérifie si la catégorie existe
+
+    public function isExist($categoryId)
+    {
+        $sql = "SELECT id FROM categories WHERE id = ?";
+        $result = $this->db->query($sql, [$categoryId]);
+        return $result->rowCount() > 0;
+    }
+
     // Met à jour une catégorie
 
     public function update($id, $nom, $description, $teacherId)

@@ -49,6 +49,21 @@ class Quiz {
     }
 
     public function getAllByCategory($categoryId) {
+        $sql = "SELECT  c.nom as categorie_nom,q.*,
+                       COUNT(DISTINCT qu.id) as questions_count
+                FROM quiz q
+                LEFT JOIN categories c ON q.categorie_id = c.id
+                LEFT JOIN questions qu ON q.id = qu.quiz_id
+                LEFT JOIN results r ON q.id = r.quiz_id
+                WHERE q.categorie_id = ? AND q.is_active
+                GROUP BY q.id
+                ORDER BY q.created_at DESC";
+
+        $result = $this->db->query($sql, [$categoryId]);
+        return $result->fetchAll();
+    }
+
+    public function getTotalByCategory($categoryId) {
         $sql = "SELECT COUNT(q.id) as total_quiz,
                 c.nom as categorie_nom
                 FROM quiz q

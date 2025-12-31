@@ -7,11 +7,9 @@ require_once '../../classes/Quiz.php';
 require_once '../../classes/Result.php';
 
 
-
-// Récupérer les données de l'utilisateur
-
 // Vérifier que l'utilisateur est étudiant
 Security::requireStudent();
+
 
 $studentID = $_SESSION['user_id'];
 $studentName = $_SESSION['user_nom'];
@@ -49,7 +47,7 @@ $userName = $_SESSION['user_nom'] ?? 'Étudiant';
                 $colors = ['blue', 'purple', 'green', 'red', 'yellow', 'pink', 'indigo', 'teal'];
                 foreach ($categories as $index => $category):
                     $color = $colors[$index % count($colors)];
-                    $show = $quizObj->getAllByCategory($category["id"]);
+                    $show = $quizObj->getTotalByCategory($category["id"]);
                 ?>
                     <div onclick="showStudentSection('categoryQuizzes')" class="bg-<?= $color ?> rounded-xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden group cursor-pointer">
                         <form action="" method="post">
@@ -59,13 +57,10 @@ $userName = $_SESSION['user_nom'] ?? 'Étudiant';
                             </div>
                             <div class="p-6">
                                 <p class="text-gray-600 mb-4"> desc: <?= $category["description"] ?></p>
-                                <div class="flex justify-between items-center text-sm">
-                                    <span class="text-gray-500"><i class="fas fa-clipboard-list mr-2"></i><?= $quizObj->getAllByCategory($category["id"])['total_quiz']; ?> quiz</span>
-                                    <form action="" method="post">
-                                        <input type="hidden" name="id" value='<?= $quizcout["id"]; ?>'>
-                                        <button name="Explorer" class="text-green-600 font-semibold group-hover:translate-x-2 transition-transform">Explorer →</button>
-                                    </form>
-
+                                <div class="flex justify-between items-center text-
+                                sm">
+                                    <span class="text-gray-500"><i class="fas fa-clipboard-list mr-2"></i><?= $quizObj->getTotalByCategory($category["id"])['total_quiz']; ?> quiz</span>
+                                        <a href="categoryQuiz.php?id=<?= $category["id"] ?>" name="Explorer" class="text-green-600 font-semibold group-hover:translate-x-2 transition-transform">Explorer →</a>
                                 </div>
                             </div>
                         </form>
