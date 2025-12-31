@@ -47,10 +47,24 @@ class Quiz {
         $result = $this->db->query($sql, [$teacherId]);
         return $result->fetchAll();
     }
+
+    public function getAllByCategory($categoryId) {
+        $sql = "SELECT COUNT(q.id) as total_quiz,
+                c.nom as categorie_nom
+                FROM quiz q
+                RIGHT JOIN categories c ON q.categorie_id = c.id
+                WHERE c.id = ?
+                GROUP BY c.nom";
+        $result = $this->db->query($sql, [$categoryId]);
+        $row = $result->fetch();
+        if (!$row) {
+            return ['total_quiz' => 0, 'categorie_nom' => ''];
+        }
+        return $row;
+    }
     
     // Récupère un quiz par ID
     
-   
     public function getById($id) {
         $sql = "SELECT q.*, c.nom as categorie_nom
                 FROM quiz q

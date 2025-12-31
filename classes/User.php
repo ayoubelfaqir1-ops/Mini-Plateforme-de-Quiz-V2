@@ -116,7 +116,6 @@ class User {
     // ============================================
     
     // Remplit les propriétés depuis un tableau (résultat SQL)
-     
     private function hydrate($data) {
         $this->id = $data['id'] ?? null;
         $this->nom = $data['nom'] ?? '';
@@ -130,7 +129,6 @@ class User {
     // ============================================
     
     // Crée un nouvel utilisateur
-    
     public function create($nom, $email, $password, $role = 'enseignant') {
         // Validation
         if (empty($nom) || empty($email) || empty($password)) {
@@ -164,7 +162,6 @@ class User {
     }
     
     // Vérifie si un email existe
-     
     public function emailExists($email) {
         $sql = "SELECT id FROM users WHERE email = ? AND deleted_at IS NULL";
         $result = $this->db->query($sql, [$email]);
@@ -172,7 +169,6 @@ class User {
     }
     
     // Connexion utilisateur
-     
     public function login($email, $password) {
         $sql = "SELECT * FROM users WHERE email = ? AND deleted_at IS NULL";
         $result = $this->db->query($sql, [$email]);

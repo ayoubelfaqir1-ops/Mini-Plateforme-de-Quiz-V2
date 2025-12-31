@@ -153,7 +153,7 @@ $initials = strtoupper(substr($userName, 0, 1) . substr(explode(' ', $userName)[
                                     <?php endif; ?>
                                 </div>
                                 <h3 class="text-xl font-bold text-gray-900 mb-2"><?= htmlspecialchars($quiz['titre']) ?></h3>
-                                <p class="text-gray-600 mb-4 text-sm"><?= htmlspecialchars(substr($quiz['description'], 0, 80)) ?>...</p>
+                                <p class="text-gray-600 mb-4 text-sm"><?= htmlspecialchars(mb_substr($quiz['description'] ?? '', 0, 80)) ?>...</p>
                                 <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
                                     <span><i class="fas fa-question-circle mr-1"></i><?= $quiz['questions_count'] ?> questions</span>
                                     <span><i class="fas fa-user-friends mr-1"></i><?= $quiz['participants_count'] ?> participants</span>
