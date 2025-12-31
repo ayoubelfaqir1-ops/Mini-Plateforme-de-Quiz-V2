@@ -53,7 +53,7 @@ class Quiz {
                 c.nom as categorie_nom
                 FROM quiz q
                 RIGHT JOIN categories c ON q.categorie_id = c.id
-                WHERE c.id = ?
+                WHERE c.id = ? AND q.is_active = 1
                 GROUP BY c.nom";
         $result = $this->db->query($sql, [$categoryId]);
         $row = $result->fetch();
