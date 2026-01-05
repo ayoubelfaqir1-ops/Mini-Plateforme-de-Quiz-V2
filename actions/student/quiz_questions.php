@@ -51,7 +51,8 @@ try {
         $quizData[] = [
             'id' => $question['id'],
             'text' => $question['question'],
-            'answers' => $answers
+            'answers' => $answers,
+            'reponse' => $question['correct_option']
         ];
     }
 

@@ -29,7 +29,10 @@ require_once __DIR__ . '/../partials/nav_student.php';
                         <h1 class="text-3xl font-bold mb-2" id="quizTitle"><?= htmlspecialchars($quizDetails['titre'] ?? 'Quiz') ?></h1>
                         <p class="text-green-100">Question <span id="currentQuestion">1</span> sur <span id="totalQuestions">-</span></p>
                     </div>
-
+                    <div>
+                        <h1 class="text-3xl font-bold mb-2">Temps restant</h1>
+                        <h1 id="timer">00:00</h2>
+                    </div>
                 </div>
             </div>
         </div>
@@ -55,22 +58,35 @@ require_once __DIR__ . '/../partials/nav_student.php';
             </div>
         </div>
     </div>
-    <div class="max-w-md mx-auto bg-white shadow-lg rounded-xl p-6 text-center hidden">
-        <h1 class="text-2xl font-bold text-gray-800">Résultat du Quiz</h1>
-
-        <div class="relative flex items-center justify-center my-6">
-            <svg class="w-32 h-32">
-                <circle cx="64" cy="64" r="58" stroke="lightgray" stroke-width="8" fill="transparent" />
-                <circle cx="64" cy="64" r="58" stroke="green" stroke-width="8" fill="transparent" stroke-dasharray="364" stroke-dashoffset="72" />
-            </svg>
-            <span class="absolute text-2xl font-bold">8/10</span>
+    
+    <!-- Result Section -->
+    <div id="resultSection" class="max-w-md mx-auto bg-white shadow-lg rounded-xl p-6 text-center hidden mt-10">
+        <div class="mb-6">
+            <div class="w-20 h-20 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-flag-checkered text-4xl text-teal-600" id="resultIcon"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800 mb-2" id="resultTitle">Quiz Terminé !</h1>
+            <p class="text-gray-600" id="resultMessage">Voici votre score final</p>
         </div>
 
-        <p class="text-gray-600 mb-6">Excellent travail ! Vous avez maîtrisé la plupart des concepts.</p>
+        <div class="relative flex items-center justify-center my-8">
+            <svg class="w-32 h-32 transform -rotate-90">
+                <circle cx="64" cy="64" r="58" stroke="#e5e7eb" stroke-width="8" fill="transparent" />
+                <circle cx="64" cy="64" r="58" stroke="#0d9488" stroke-width="8" fill="transparent" stroke-dasharray="364" stroke-dashoffset="364" id="scoreCircle" class="transition-all duration-1000 ease-out" />
+            </svg>
+            <div class="absolute text-center">
+                <span class="block text-3xl font-bold text-gray-800" id="scoreValue">0%</span>
+                <span class="text-sm text-gray-500" id="scoreText">0/0</span>
+            </div>
+        </div>
 
-        <div class="flex flex-col gap-3">
-            <button class="bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">Revoir les réponses</button>
-            <button class="border border-gray-300 py-3 rounded-lg font-semibold hover:bg-gray-50">Recommencer le quiz</button>
+        <div class="space-y-3">
+            <a href="quizzes.php" class="block w-full bg-teal-600 text-white py-3 px-4 rounded-lg font-bold hover:bg-teal-700 transition-colors">
+                <i class="fas fa-th-large mr-2"></i>Retour aux Quiz
+            </a>
+            <button onclick="window.location.reload()" class="block w-full border-2 border-gray-200 text-gray-700 py-3 px-4 rounded-lg font-bold hover:border-teal-600 hover:text-teal-600 transition-colors">
+                <i class="fas fa-redo mr-2"></i>Recommencer
+            </button>
         </div>
     </div>
 </div>
@@ -80,6 +96,33 @@ require_once __DIR__ . '/../partials/nav_student.php';
     let questions = [];
     let currentQuestionIndex = 0;
     let userAnswers = {};
+    let score = 0;
+    let finishtimeMINUTES = 0;
+    let finishtimeSECONDS = 0;
+    let finishtime = `${finishtimeMINUTES}:${finishtimeSECONDS}`;
+    let time = <?= json_encode($quizDetails['periode']) ?> * 60;
+    
+const timer = setInterval(() => {
+    let minutes = Math.floor(time / 60);
+    let seconds = time % 60;
+
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+    document.getElementById("timer").textContent =
+        `${minutes}:${seconds}`;
+
+    time--;
+    finishtimeSECONDS++;
+    if (finishtimeSECONDS >= 60) {
+        finishtimeMINUTES++;
+        finishtimeSECONDS = 0;
+    }
+    if (time < 0) {
+        clearInterval(timer);
+        document.getElementById("timer").textContent = "00:00";
+        result(true); // Time is up
+    }
+}, 1000);
 
     document.addEventListener('DOMContentLoaded', function() {
         fetchQuestions();
@@ -111,7 +154,7 @@ require_once __DIR__ . '/../partials/nav_student.php';
 
         const answersContainer = document.getElementById('answersContainer');
         answersContainer.innerHTML = '';
-        
+
 
         question.answers.forEach(answer => {
             const isSelected = userAnswers[question.id] === answer.id;
@@ -120,7 +163,7 @@ require_once __DIR__ . '/../partials/nav_student.php';
 
             const div = document.createElement('div');
             div.className = `answer-option p-4 border-2 ${selectedClass} rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50 transition`;
-            div.onclick = () => selectAnswer(div, question.id, answer.id);
+            div.onclick = () => selectAnswer(div, question.id, answer.id, question.reponse);
 
             div.innerHTML = `
                 <div class="flex items-center">
@@ -134,7 +177,7 @@ require_once __DIR__ . '/../partials/nav_student.php';
         });
     }
 
-    function selectAnswer(element, questionId, answerId) {
+    function selectAnswer(element, questionId, answerId, reponse) {
         // Update data
         userAnswers[questionId] = answerId;
 
@@ -156,7 +199,11 @@ require_once __DIR__ . '/../partials/nav_student.php';
             renderQuestion(currentQuestionIndex + 1);
         } else {
             // Submit Quiz Logic here
-            alert("Quiz terminé ! (Logique de soumission à implémenter)");
+            clearInterval(timer);
+            finishtime = document.getElementById("timer").textContent;
+            document.getElementById("timer").textContent = "00:00";
+            result(false);
+            submitResult();
         }
     }
 
@@ -166,8 +213,59 @@ require_once __DIR__ . '/../partials/nav_student.php';
         }
     }
 
-    // fucntion result() {
+    function result(isTimeUp) {
+        // Calculate Score
+        let correctCount = 0;
+        questions.forEach(q => {
+            if (userAnswers[q.id] == q.reponse) {
+                correctCount++;
+            }
+        });
+        score = correctCount;
 
-    // }
+        // Update UI Text
+        if (isTimeUp) {
+            document.getElementById('resultTitle').textContent = "Temps Écoulé !";
+            document.getElementById('resultMessage').textContent = "Le temps imparti est terminé.";
+            document.getElementById('resultIcon').className = "fas fa-hourglass-end text-4xl text-orange-500";
+        } else {
+            document.getElementById('resultTitle').textContent = "Quiz Terminé !";
+            document.getElementById('resultMessage').textContent = "Bravo, vous avez complété le quiz.";
+            document.getElementById('resultIcon').className = "fas fa-check-circle text-4xl text-teal-600";
+        }
+
+        // Update Score Display
+        document.getElementById('scoreText').textContent = `${correctCount}/${questions.length}`;
+        const percentage = Math.round((correctCount / questions.length) * 100);
+        document.getElementById('scoreValue').textContent = `${percentage}%`;
+
+        // Animate Circle
+        const circle = document.getElementById('scoreCircle');
+        const circumference = 364;
+        const offset = circumference - (percentage / 100) * circumference;
+        circle.style.strokeDashoffset = offset;
+
+        // Show Section
+        document.getElementById('resultSection').classList.remove('hidden');
+        document.getElementById('takeQuiz').classList.add('hidden');
+    }
+
+    function submitResult() {
+        fetch('../../actions/student/result_submission.php',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({'quiz_id':quizId, 'score':score, 'total_questions':questions.length, 'finishtime':finishtime})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log("Saved");
+        }else {
+            console.error(data.error);
+        }
+        })
+    }
 </script>
 <?php require_once __DIR__ . '/../partials/footer.php'; ?>

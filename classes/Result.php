@@ -24,7 +24,7 @@ class Result {
                 LEFT JOIN quiz q ON r.quiz_id = q.id
                 LEFT JOIN categories c ON q.categorie_id = c.id
                 WHERE r.etudiant_id = ?
-                ORDER BY r.created_at DESC";
+                ORDER BY r.completed_at DESC";
         
         $result = $this->db->query($sql, [$etudiantId]);
         return $result->fetchAll();
@@ -54,14 +54,15 @@ class Result {
      * @param int $totalQuestions
      * @return int|false
      */
-    public function save($quizId, $etudiantId, $score, $totalQuestions) {
-        $sql = "INSERT INTO results (quiz_id, etudiant_id, score, total_questions, created_at) 
-                VALUES (?, ?, ?, ?, NOW())";
+    public function save($quizId, $etudiantId, $score, $totalQuestions, $finishtime) {
+        $sql = "INSERT INTO results (quiz_id, etudiant_id, score, total_questions, completed_at, finishtime) 
+                VALUES (?, ?, ?, ?, NOW(),?)";
         
         try {
-            $this->db->query($sql, [$quizId, $etudiantId, $score, $totalQuestions]);
+            $this->db->query($sql, [$quizId, $etudiantId, $score, $totalQuestions, $finishtime]);
             return $this->db->getConnection()->lastInsertId();
         } catch (Exception $e) {
+            error_log("Erreur lors de l'enregistrement du résultat : " . $e->getMessage());
             return false;
         }
     }
